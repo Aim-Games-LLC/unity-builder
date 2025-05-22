@@ -76,6 +76,7 @@
     // Allow Array.from(set) mitigate TS2569 which would require '--downlevelIteration'
     "unicorn/prefer-spread": "off",
     // Temp disable to prevent mixing changes with other PRs
-    "i18n-text/no-en": "off"
+    "i18n-text/no-en": "off",
+    "@typescript-eslint/no-shadow": "off"
   }
 }

@@ -3,6 +3,7 @@ import CloudRunner from './cloud-runner/cloud-runner';
 import CloudRunnerOptions from './cloud-runner/options/cloud-runner-options';
 import * as core from '@actions/core';
 import { Octokit } from '@octokit/core';
+import { UnityError } from './error/unity-error-parser';
 
 class GitHub {
   private static readonly asyncChecksApiWorkflowName = `Async Checks API`;
@@ -44,6 +45,29 @@ class GitHub {
 
   private static get repo() {
     return CloudRunnerOptions.githubRepoName;
+  }
+
+  public static async createGithubErrorCheck(summary: string, errors: UnityError[]) {
+    GitHub.startedDate = new Date().toISOString();
+
+    const data = {
+      owner: GitHub.owner,
+      repo: GitHub.repo,
+      name: 'Unity Build Validation',
+      // eslint-disable-next-line camelcase
+      head_sha: GitHub.sha,
+      status: 'completed',
+      conclusion: errors.length > 0 ? 'failure' : 'success',
+      output: {
+        title: errors.length > 0 ? 'Unity Build Errors Detected' : 'Unity Build Successful',
+        summary: `Found ${errors.length} errors during the build.`,
+        text: summary,
+      },
+    };
+
+    const result = await GitHub.createGitHubCheckRequest(data);
+
+    return result.data.id.toString();
   }
 
   public static async createGitHubCheck(summary: string) {

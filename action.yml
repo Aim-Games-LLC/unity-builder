@@ -2,6 +2,14 @@ name: 'Unity - Builder'
 author: Webber Takken <webber@takken.io>
 description: 'Build Unity projects for different platforms.'
 inputs:
+  error-reporting:
+    description: 'Enable detailed error reporting'
+    required: false
+    default: 'true'
+  error-patterns:
+    description: 'JSON string of additional error patterns to match'
+    required: false
+    default: '[]'
   targetPlatform:
     required: true
     default: ''

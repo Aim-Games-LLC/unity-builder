@@ -1,7 +1,10 @@
-import ImageEnvironmentFactory from './image-environment-factory';
-import { existsSync, mkdirSync } from 'node:fs';
-import path from 'node:path';
+import core from '@actions/core';
 import { ExecOptions, exec } from '@actions/exec';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { Severity, UnityError, UnityErrorParser } from './error/unity-error-parser';
+import GitHub from './github';
+import ImageEnvironmentFactory from './image-environment-factory';
 import { DockerParameters, StringKeyValuePair } from './shared-types';
 
 class Docker {
@@ -14,6 +17,8 @@ class Docker {
     options: ExecOptions = {},
     entrypointBash: boolean = false,
   ): Promise<number> {
+    const buildLogPath = path.join(parameters.workspace, 'unity-build.log');
+
     let runCommand = '';
     switch (process.platform) {
       case 'linux':
@@ -26,10 +31,48 @@ class Docker {
         throw new Error(`Operation system, ${process.platform}, is not supported yet.`);
     }
 
+    runCommand = `${runCommand} | tee ${buildLogPath}`;
+
     options.silent = silent;
     options.ignoreReturnCode = true;
 
-    return await exec(runCommand, undefined, options);
+    const exitCode = await exec(runCommand, undefined, options);
+
+    if (existsSync(buildLogPath)) {
+      const logContent = readFileSync(buildLogPath, 'utf8');
+      const errors = UnityErrorParser.parse(logContent, Severity.Error);
+      await this.report(errors);
+    }
+
+    return exitCode;
+  }
+
+  static async report(errors: UnityError[]) {
+    if (errors.length === 0) return;
+
+    const byType = new Map<string, UnityError[]>();
+    for (const error of errors) {
+      if (!byType.has(error.type)) {
+        byType.set(error.type, []);
+      }
+      byType.get(error.type)!.push(error);
+    }
+
+    const summaryLines = ['## Unity Build Error Summary\n\n'];
+    for (const [type, typeErrors] of byType) {
+      summaryLines.push(`### ${type} (${typeErrors.length}) occurrences ###`);
+      for (const error of typeErrors) {
+        summaryLines.push(`- **Line ${error.lineNumber}**: ${error.message}\n`, '  ```\n');
+        for (const line of error.context) {
+          summaryLines.push(`  ${line}\n`);
+        }
+        summaryLines.push('  ```\n\n');
+      }
+    }
+
+    const summary = summaryLines.join('');
+    await core.summary.addRaw(summary).write();
+    await GitHub.createGithubErrorCheck(summary, errors);
   }
 
   static getLinuxCommand(
