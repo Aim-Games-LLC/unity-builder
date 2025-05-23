@@ -19,11 +19,17 @@ class MacBuilder {
       renameSync(buildLogPath, `${buildLogPath}.old`); // renameSync will replace the existing file
     }
 
+    // Touch the file just in case ????
+    await exec(`touch ${buildLogPath}`);
+
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh | tee ${buildLogPath}`;
     const exitCode = await exec(runCommand, [], { silent, ignoreReturnCode: true });
 
     if (existsSync(buildLogPath)) {
       core.info(`Build log at ${buildLogPath} still exists after build!`);
+
+      const contents = readFileSync(buildLogPath, 'utf8');
+      core.info(contents);
     } else {
       core.warning(`!!!Build log at ${buildLogPath} no longer exists after build!!!`);
     }
