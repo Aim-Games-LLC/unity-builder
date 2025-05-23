@@ -1,295 +1,298 @@
-name: "Unity - Builder"
+name: 'Unity - Builder'
 author: Webber Takken <webber@takken.io>
-description: "Build Unity projects for different platforms."
+description: 'Build Unity projects for different platforms.'
 inputs:
   errorReporting:
-    description: "Enable detailed error reporting"
+    description: 'Enable detailed error reporting'
     required: false
-    default: "true"
+    default: 'true'
   errorPatterns:
-    description: "JSON string of additional error patterns to match"
+    description: 'JSON string of additional error patterns to match'
     required: false
-    default: "[]"
+    default: '[]'
   warningPatterns:
-    description: "JSON string of additional warning patterns to match"
+    description: 'JSON string of additional warning patterns to match'
     required: false
-    default: "[]"
+    default: '[]'
   targetPlatform:
     required: true
-    default: ""
-    description: "Platform that the build should target."
+    default: ''
+    description: 'Platform that the build should target.'
   unityVersion:
     required: false
-    default: "auto"
-    description: 'Version of unity to use for building the project. Use "auto" to get from your ProjectSettings/ProjectVersion.txt'
+    default: 'auto'
+    description:
+      'Version of unity to use for building the project. Use "auto" to get from your ProjectSettings/ProjectVersion.txt'
   customImage:
     required: false
-    default: ""
-    description: "Specific docker image that should be used for building the project"
+    default: ''
+    description: 'Specific docker image that should be used for building the project'
   projectPath:
     required: false
-    default: ""
-    description: "Path to the project to be built, relative to the repository root."
+    default: ''
+    description: 'Path to the project to be built, relative to the repository root.'
   buildProfile:
     required: false
-    default: ""
-    description: "Path to the build profile to activate, relative to the project root."
+    default: ''
+    description: 'Path to the build profile to activate, relative to the project root.'
   buildName:
     required: false
-    default: ""
-    description: "Name of the build. Should not include a file extension."
+    default: ''
+    description: 'Name of the build. Should not include a file extension.'
   buildsPath:
     required: false
-    default: ""
-    description: "Path where the builds should be stored."
+    default: ''
+    description: 'Path where the builds should be stored.'
   buildMethod:
     required: false
-    default: ""
-    description: "Path to a Namespace.Class.StaticMethod to run to perform the build."
+    default: ''
+    description: 'Path to a Namespace.Class.StaticMethod to run to perform the build.'
   manualExit:
     required: false
-    default: ""
-    description: "Suppresses `-quit`. Exit your build method using `EditorApplication.Exit(0)` instead."
+    default: ''
+    description: 'Suppresses `-quit`. Exit your build method using `EditorApplication.Exit(0)` instead.'
   enableGpu:
     required: false
-    default: ""
-    description: "Launches unity without specifying `-nographics`."
+    default: ''
+    description: 'Launches unity without specifying `-nographics`.'
   customParameters:
     required: false
-    default: ""
-    description: "Custom parameters to configure the build."
+    default: ''
+    description: 'Custom parameters to configure the build.'
   versioning:
     required: false
-    default: "Semantic"
-    description: "The versioning scheme to use when building the project"
+    default: 'Semantic'
+    description: 'The versioning scheme to use when building the project'
   version:
     required: false
-    default: ""
+    default: ''
     description: 'The version, when used with the "Custom" versioning scheme'
   androidVersionCode:
     required: false
-    default: ""
-    description: "The android versionCode"
+    default: ''
+    description: 'The android versionCode'
   androidExportType:
     required: false
-    default: "androidPackage"
+    default: 'androidPackage'
     description:
-      "The android export type. Should be androidPackage for apk, androidAppBundle for aab, or androidStudioProject for
-      an android studio project."
+      'The android export type. Should be androidPackage for apk, androidAppBundle for aab, or androidStudioProject for
+      an android studio project.'
   androidKeystoreName:
     required: false
-    default: ""
-    description: "The android keystoreName"
+    default: ''
+    description: 'The android keystoreName'
   androidKeystoreBase64:
     required: false
-    default: ""
-    description: "The base64 contents of the android keystore file"
+    default: ''
+    description: 'The base64 contents of the android keystore file'
   androidKeystorePass:
     required: false
-    default: ""
-    description: "The android keystorePass"
+    default: ''
+    description: 'The android keystorePass'
   androidKeyaliasName:
     required: false
-    default: ""
-    description: "The android keyaliasName"
+    default: ''
+    description: 'The android keyaliasName'
   androidKeyaliasPass:
     required: false
-    default: ""
-    description: "The android keyaliasPass"
+    default: ''
+    description: 'The android keyaliasPass'
   androidTargetSdkVersion:
     required: false
-    default: ""
-    description: "The android target API level."
+    default: ''
+    description: 'The android target API level.'
   androidSymbolType:
     required: false
-    default: "none"
+    default: 'none'
     description: 'The android symbol type to export. Should be "none", "public" or "debugging".'
   sshAgent:
     required: false
-    default: ""
-    description: "SSH Agent path to forward to the container"
+    default: ''
+    description: 'SSH Agent path to forward to the container'
   sshPublicKeysDirectoryPath:
     required: false
-    default: ""
-    description: "Path to a directory containing SSH public keys to forward to the container."
+    default: ''
+    description: 'Path to a directory containing SSH public keys to forward to the container.'
   gitPrivateToken:
     required: false
-    default: ""
-    description: "[CloudRunner] Github private token to pull from github"
+    default: ''
+    description: '[CloudRunner] Github private token to pull from github'
   githubOwner:
     required: false
-    default: ""
-    description: "[CloudRunner] GitHub owner name or organization/team name"
+    default: ''
+    description: '[CloudRunner] GitHub owner name or organization/team name'
   runAsHostUser:
     required: false
-    default: "false"
+    default: 'false'
     description:
-      "Whether to run as a user that matches the host system or the default root container user. Only applicable to
-      Linux hosts and containers. This is useful for fixing permission errors on Self-Hosted runners."
+      'Whether to run as a user that matches the host system or the default root container user. Only applicable to
+      Linux hosts and containers. This is useful for fixing permission errors on Self-Hosted runners.'
   chownFilesTo:
     required: false
-    default: ""
-    description: "User and optionally group (user or user:group or uid:gid) to give ownership of the resulting build artifacts"
+    default: ''
+    description:
+      'User and optionally group (user or user:group or uid:gid) to give ownership of the resulting build artifacts'
   dockerCpuLimit:
     required: false
-    default: ""
-    description: "Number of CPU cores to assign the docker container. Defaults to all available cores on all platforms."
+    default: ''
+    description: 'Number of CPU cores to assign the docker container. Defaults to all available cores on all platforms.'
   dockerMemoryLimit:
     required: false
-    default: ""
+    default: ''
     description:
-      "Amount of memory to assign the docker container. Defaults to 95% of total system memory rounded down to the
+      'Amount of memory to assign the docker container. Defaults to 95% of total system memory rounded down to the
       nearest megabyte on Linux and 80% on Windows. On unrecognized platforms, defaults to 75% of total system memory.
-      To manually specify a value, use the format <number><unit>, where unit is either m or g. ie: 512m = 512 megabytes"
+      To manually specify a value, use the format <number><unit>, where unit is either m or g. ie: 512m = 512 megabytes'
   dockerIsolationMode:
     required: false
-    default: "default"
+    default: 'default'
     description:
-      "Isolation mode to use for the docker container. Can be one of process, hyperv, or default. Default will pick the
+      'Isolation mode to use for the docker container. Can be one of process, hyperv, or default. Default will pick the
       default mode as described by Microsoft where server versions use process and desktop versions use hyperv. Only
-      applicable on Windows"
+      applicable on Windows'
   containerRegistryRepository:
     required: false
-    default: "unityci/editor"
-    description: "Container registry and repository to pull image from. Only applicable if customImage is not set."
+    default: 'unityci/editor'
+    description: 'Container registry and repository to pull image from. Only applicable if customImage is not set.'
   containerRegistryImageVersion:
     required: false
-    default: "3"
-    description: "Container registry image version. Only applicable if customImage is not set."
+    default: '3'
+    description: 'Container registry image version. Only applicable if customImage is not set.'
   allowDirtyBuild:
     required: false
-    default: ""
-    description: "[CloudRunner] Allows the branch of the build to be dirty, and still generate the build."
+    default: ''
+    description: '[CloudRunner] Allows the branch of the build to be dirty, and still generate the build.'
   postBuildSteps:
     required: false
-    default: ""
+    default: ''
     description:
-      "[CloudRunner] run a post build job in yaml format with the keys image, secrets (name, value object array),
-      command string"
+      '[CloudRunner] run a post build job in yaml format with the keys image, secrets (name, value object array),
+      command string'
   preBuildSteps:
     required: false
-    default: ""
+    default: ''
     description:
-      "[CloudRunner] Run a pre build job after the repository setup but before the build job (in yaml format with the
-      keys image, secrets (name, value object array), command line string)"
+      '[CloudRunner] Run a pre build job after the repository setup but before the build job (in yaml format with the
+      keys image, secrets (name, value object array), command line string)'
   containerHookFiles:
     required: false
-    default: ""
+    default: ''
     description:
-      "[CloudRunner] Specify the names (by file name) of custom steps to run before or after cloud runner jobs, must
-      match a yaml step file inside your repo in the folder .game-ci/steps/"
+      '[CloudRunner] Specify the names (by file name) of custom steps to run before or after cloud runner jobs, must
+      match a yaml step file inside your repo in the folder .game-ci/steps/'
   customHookFiles:
     required: false
-    default: ""
+    default: ''
     description:
-      "[CloudRunner] Specify the names (by file name) of custom hooks to run before or after cloud runner jobs, must
-      match a yaml step file inside your repo in the folder .game-ci/hooks/"
+      '[CloudRunner] Specify the names (by file name) of custom hooks to run before or after cloud runner jobs, must
+      match a yaml step file inside your repo in the folder .game-ci/hooks/'
   customCommandHooks:
     required: false
-    default: ""
-    description: "[CloudRunner] Specify custom commands and trigger hooks (injects commands into jobs)"
+    default: ''
+    description: '[CloudRunner] Specify custom commands and trigger hooks (injects commands into jobs)'
   customJob:
     required: false
-    default: ""
+    default: ''
     description:
-      "[CloudRunner] Run a custom job instead of the standard build automation for cloud runner (in yaml format with the
-      keys image, secrets (name, value object array), command line string)"
+      '[CloudRunner] Run a custom job instead of the standard build automation for cloud runner (in yaml format with the
+      keys image, secrets (name, value object array), command line string)'
   awsStackName:
-    default: "game-ci"
+    default: 'game-ci'
     required: false
-    description: "[CloudRunner] The Cloud Formation stack name that must be setup before using this option."
+    description: '[CloudRunner] The Cloud Formation stack name that must be setup before using this option.'
   providerStrategy:
-    default: "local"
+    default: 'local'
     required: false
     description:
-      "[CloudRunner] Either local, k8s or aws can be used to run builds on a remote cluster. Additional parameters must
-      be configured."
+      '[CloudRunner] Either local, k8s or aws can be used to run builds on a remote cluster. Additional parameters must
+      be configured.'
   containerCpu:
-    default: ""
+    default: ''
     required: false
-    description: "[CloudRunner] Amount of CPU time to assign the remote build container"
+    description: '[CloudRunner] Amount of CPU time to assign the remote build container'
   containerMemory:
-    default: ""
+    default: ''
     required: false
-    description: "[CloudRunner] Amount of memory to assign the remote build container"
+    description: '[CloudRunner] Amount of memory to assign the remote build container'
   readInputFromOverrideList:
-    default: ""
+    default: ''
     required: false
     description: '[CloudRunner] Comma separated list of input value names to read from "input override command"'
   readInputOverrideCommand:
-    default: ""
+    default: ''
     required: false
     description:
-      "[CloudRunner] Extend game ci by specifying a command to execute to pull input from external source e.g cloud
-      provider secret managers"
+      '[CloudRunner] Extend game ci by specifying a command to execute to pull input from external source e.g cloud
+      provider secret managers'
   kubeConfig:
-    default: ""
+    default: ''
     required: false
     description:
-      "[CloudRunner] Supply a base64 encoded kubernetes config to run builds on kubernetes and stream logs until
-      completion."
+      '[CloudRunner] Supply a base64 encoded kubernetes config to run builds on kubernetes and stream logs until
+      completion.'
   kubeVolume:
-    default: ""
+    default: ''
     required: false
-    description: "[CloudRunner] Supply a Persistent Volume Claim name to use for the Unity build."
+    description: '[CloudRunner] Supply a Persistent Volume Claim name to use for the Unity build.'
   kubeStorageClass:
-    default: ""
+    default: ''
     required: false
-    description: "[CloudRunner] Kubernetes storage class to use for cloud runner jobs, leave empty to install rook cluster."
+    description:
+      '[CloudRunner] Kubernetes storage class to use for cloud runner jobs, leave empty to install rook cluster.'
   kubeVolumeSize:
-    default: "5Gi"
+    default: '5Gi'
     required: false
-    description: "[CloudRunner] Amount of disc space to assign the Kubernetes Persistent Volume"
+    description: '[CloudRunner] Amount of disc space to assign the Kubernetes Persistent Volume'
   cacheKey:
-    default: ""
+    default: ''
     required: false
-    description: "[CloudRunner] Cache key to indicate bucket for cache"
+    description: '[CloudRunner] Cache key to indicate bucket for cache'
   watchToEnd:
-    default: "true"
+    default: 'true'
     required: false
     description:
-      "[CloudRunner] Whether or not to watch the build to the end. Can be used for especially long running jobs e.g
-      imports or self-hosted ephemeral runners."
+      '[CloudRunner] Whether or not to watch the build to the end. Can be used for especially long running jobs e.g
+      imports or self-hosted ephemeral runners.'
   cacheUnityInstallationOnMac:
-    default: "false"
+    default: 'false'
     required: false
-    description: "Whether to cache the Unity hub and editor installation on MacOS"
+    description: 'Whether to cache the Unity hub and editor installation on MacOS'
   unityHubVersionOnMac:
-    default: ""
+    default: ''
     required: false
     description:
-      "The version of Unity Hub to install on MacOS (e.g. 3.4.0). Defaults to latest available on brew if empty string
-      or nothing is specified."
+      'The version of Unity Hub to install on MacOS (e.g. 3.4.0). Defaults to latest available on brew if empty string
+      or nothing is specified.'
   unityLicensingServer:
-    default: ""
+    default: ''
     required: false
-    description: "The Unity licensing server address to use for activating Unity."
+    description: 'The Unity licensing server address to use for activating Unity.'
   dockerWorkspacePath:
-    default: "/github/workspace"
+    default: '/github/workspace'
     required: false
     description:
-      "The path to mount the workspace inside the docker container. For windows, leave out the drive letter. For example
-      c:/github/workspace should be defined as /github/workspace"
+      'The path to mount the workspace inside the docker container. For windows, leave out the drive letter. For example
+      c:/github/workspace should be defined as /github/workspace'
   skipActivation:
-    default: "false"
+    default: 'false'
     required: false
-    description: "Skip the activation/deactivation of Unity. This assumes Unity is already activated."
+    description: 'Skip the activation/deactivation of Unity. This assumes Unity is already activated.'
 
 outputs:
   volume:
-    description: "The Persistent Volume (PV) where the build artifacts have been stored by Kubernetes"
+    description: 'The Persistent Volume (PV) where the build artifacts have been stored by Kubernetes'
   buildVersion:
-    description: "The generated version used for the Unity build"
+    description: 'The generated version used for the Unity build'
   androidVersionCode:
-    description: "The generated versionCode used for the Android Unity build"
+    description: 'The generated versionCode used for the Android Unity build'
   engineExitCode:
     description:
-      "Returns the exit code from the build scripts. This code is 0 if the build was successful. If there was an error
+      'Returns the exit code from the build scripts. This code is 0 if the build was successful. If there was an error
       during activation, the code is from the activation step. If activation is successful, the code is from the project
-      build step."
+      build step.'
 branding:
-  icon: "box"
-  color: "gray-dark"
+  icon: 'box'
+  color: 'gray-dark'
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: 'node20'
+  main: 'dist/index.js'

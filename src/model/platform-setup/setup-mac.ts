@@ -1,7 +1,7 @@
-import { BuildParameters } from '..';
-import { getUnityChangeset } from 'unity-changeset';
-import { exec, getExecOutput } from '@actions/exec';
 import { restoreCache, saveCache } from '@actions/cache';
+import { exec, getExecOutput } from '@actions/exec';
+import { getUnityChangeset } from 'unity-changeset';
+import { BuildParameters } from '..';
 
 import fs from 'node:fs';
 
@@ -191,6 +191,10 @@ class SetupMac {
     process.env.CHOWN_FILES_TO = buildParameters.chownFilesTo;
     process.env.MANUAL_EXIT = buildParameters.manualExit.toString();
     process.env.ENABLE_GPU = buildParameters.enableGpu.toString();
+
+    process.env.DO_ERROR_REPORTING = `${buildParameters.errorReporting}`;
+    process.env.REPORTING_ERROR_PATTERNS = JSON.stringify(buildParameters.errorPatterns);
+    process.env.REPORTING_WARNING_PATTERNS = JSON.stringify(buildParameters.warningPatterns);
   }
 }
 
