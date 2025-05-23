@@ -1,6 +1,5 @@
 // Derived from https://github.com/game-ci/unity-builder/issues/677
 import core from '@actions/core';
-import { Cli } from '../cli/cli';
 import GitHub from '../github';
 
 export const Severity = {
@@ -53,7 +52,7 @@ export class UnityErrorParser {
   }
 
   public static async report(errors: UnityError[], severity: string) {
-    if (!Cli.options?.doErrorReporting) return;
+    if (!this.doErrorReporting) return;
 
     const summary = this.createSummaryLines(errors, severity).join('');
     await core.summary.addRaw(summary).write();
