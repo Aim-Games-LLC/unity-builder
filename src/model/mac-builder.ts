@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
-import { existsSync, readFileSync, renameSync } from 'node:fs';
+import { existsSync, readFileSync, renameSync, rmSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { Severity, UnityErrorParser } from './error/unity-error-parser';
 
@@ -8,20 +8,22 @@ class MacBuilder {
   public static async run(actionFolder: string, silent: boolean = false): Promise<number> {
     const buildLogPath = `${homedir()}/unity-build.log`;
 
-    core.info(`buildLogPath = ${buildLogPath}`);
+    // core.info(`buildLogPath = ${buildLogPath}`);
 
     if (existsSync(buildLogPath)) {
       core.info(`Build log at ${buildLogPath} already exists -- moving it to ${buildLogPath}.old`);
       renameSync(buildLogPath, `${buildLogPath}.old`); // renameSync will replace the existing file
     }
 
-    core.info(`Touching ${buildLogPath} to ensure it exists`);
-    await exec(`touch ${buildLogPath}`);
-    if (existsSync(buildLogPath)) {
-      core.info(`Confirmed that ${buildLogPath} exists!`);
-    } else {
-      core.warning(`!!!${buildLogPath} does not exist after touching!!!`);
-    }
+    core.info(JSON.stringify(process.env, undefined, 2));
+
+    // core.info(`Touching ${buildLogPath} to ensure it exists`);
+    // await exec(`touch ${buildLogPath}`);
+    // if (existsSync(buildLogPath)) {
+    //   core.info(`Confirmed that ${buildLogPath} exists!`);
+    // } else {
+    //   core.warning(`!!!${buildLogPath} does not exist after touching!!!`);
+    // }
 
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh | tee ${buildLogPath}`;
     const exitCode = await exec(runCommand, [], { silent, ignoreReturnCode: true });
@@ -32,6 +34,8 @@ class MacBuilder {
       core.warning(`!!!Build log at ${buildLogPath} no longer exists after build!!!`);
     }
 
+    core.info(`UnityErrorParser.doErrorReporting = ${UnityErrorParser.doErrorReporting}`);
+
     if (UnityErrorParser.doErrorReporting && existsSync(buildLogPath)) {
       const logContent = readFileSync(buildLogPath, 'utf8');
 
@@ -41,11 +45,16 @@ class MacBuilder {
       await UnityErrorParser.report(warnings, Severity.Warning);
       await UnityErrorParser.report(errors, Severity.Error);
     } else {
-      if (UnityErrorParser.doErrorReporting) {
+      if (!UnityErrorParser.doErrorReporting) {
         core.info('Error reporting has been disabled.');
       } else {
         core.error(`Log at ${buildLogPath} does not exist!`);
       }
+    }
+
+    /* cleanup the logfile we tee'd */
+    if (existsSync(buildLogPath)) {
+      rmSync(buildLogPath);
     }
 
     return exitCode;
