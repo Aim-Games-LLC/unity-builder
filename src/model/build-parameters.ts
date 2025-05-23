@@ -25,8 +25,8 @@ class BuildParameters {
   public skipActivation!: string;
   public runnerTempPath!: string;
   public errorReporting!: boolean;
-  public errorPatterns!: string[];
-  public warningPatterns!: string[];
+  public errorPatterns!: any;
+  public warningPatterns!: any;
   public targetPlatform!: string;
   public projectPath!: string;
   public buildProfile!: string;

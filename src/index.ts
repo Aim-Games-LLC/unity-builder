@@ -21,15 +21,12 @@ async function runMain() {
 
     let exitCode = -1;
 
-    // TODO: Remove this once we figure out the build params stuff
-    core.info(JSON.stringify(buildParameters, undefined, 2));
-
     if (buildParameters.providerStrategy === 'local') {
       core.info('Building locally');
       await PlatformSetup.setup(buildParameters, actionFolder);
       exitCode =
         process.platform === 'darwin'
-          ? await MacBuilder.run(actionFolder)
+          ? await MacBuilder.run(buildParameters, actionFolder)
           : await Docker.run(baseImage.toString(), {
               workspace,
               actionFolder,

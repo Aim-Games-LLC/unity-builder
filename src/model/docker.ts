@@ -1,8 +1,6 @@
-import * as core from '@actions/core';
 import { ExecOptions, exec } from '@actions/exec';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { Severity, UnityErrorParser } from './error/unity-error-parser';
 import ImageEnvironmentFactory from './image-environment-factory';
 import { DockerParameters, StringKeyValuePair } from './shared-types';
 
@@ -35,25 +33,7 @@ class Docker {
     options.silent = silent;
     options.ignoreReturnCode = true;
 
-    const exitCode = await exec(runCommand, undefined, options);
-
-    if (UnityErrorParser.doErrorReporting && existsSync(buildLogPath)) {
-      const logContent = readFileSync(buildLogPath, 'utf8');
-
-      const errors = UnityErrorParser.parse(logContent, Severity.Error);
-      const warnings = UnityErrorParser.parse(logContent, Severity.Warning);
-
-      await UnityErrorParser.report(warnings, Severity.Warning);
-      await UnityErrorParser.report(errors, Severity.Error);
-    } else {
-      if (UnityErrorParser.doErrorReporting) {
-        core.info('Error reporting has been disabled.');
-      } else {
-        core.error(`Log at ${buildLogPath} does not exist!`);
-      }
-    }
-
-    return exitCode;
+    return await exec(runCommand, undefined, options);
   }
 
   static getLinuxCommand(

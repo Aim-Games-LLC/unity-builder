@@ -1,6 +1,7 @@
 // Derived from https://github.com/game-ci/unity-builder/issues/677
 import core from '@actions/core';
 import GitHub from '../github';
+import BuildParameters from '../build-parameters';
 
 export const Severity = {
   Error: 'error',
@@ -15,21 +16,31 @@ export interface UnityError {
   severity: string;
 }
 
+interface Pattern {
+  pattern: string | RegExp;
+  category: string;
+}
+
+interface PatternSet {
+  [key: string]: Pattern[];
+}
+
 export class UnityErrorParser {
-  public static readonly doErrorReporting = process.env.DO_ERROR_REPORTING === 'true';
-  public static readonly errorPatterns = JSON.parse(process.env.REPORTING_ERROR_PATTERNS || '[]');
-  public static readonly warningPatterns = JSON.parse(process.env.REPORTING_WARNING_PATTERNS || '[]');
+  public readonly doErrorReporting: boolean;
+  private patterns: PatternSet;
 
-  private static readonly patterns = {
-    [Severity.Error]: [{ pattern: /error CS\d+: (.*)/, category: 'Compilation Error' }].concat(
-      UnityErrorParser.errorPatterns,
-    ),
-    [Severity.Warning]: [{ pattern: /warning CS\d+: (.*)/, category: 'Compilation Warning' }].concat(
-      UnityErrorParser.warningPatterns,
-    ),
-  };
+  constructor(parameters: BuildParameters) {
+    this.doErrorReporting = parameters.errorReporting;
+    this.patterns = {
+      [Severity.Error]: [...parameters.errorPatterns, { pattern: /error CS\d+: (.*)/, category: 'Compilation Error' }],
+      [Severity.Warning]: [
+        ...parameters.warningPatterns,
+        { pattern: /warning CS\d+: (.*)/, category: 'Compilation Warning' },
+      ],
+    };
+  }
 
-  public static parse(logContent: string, severity: string): UnityError[] {
+  public parse(logContent: string, severity: string): UnityError[] {
     const lines = logContent.split('\n');
 
     return lines
@@ -51,7 +62,7 @@ export class UnityErrorParser {
       .map((x) => x as UnityError);
   }
 
-  public static async report(errors: UnityError[], severity: string) {
+  public async report(errors: UnityError[], severity: string) {
     if (!this.doErrorReporting) return;
 
     const summary = this.createSummaryLines(errors, severity).join('');
@@ -59,7 +70,7 @@ export class UnityErrorParser {
     await GitHub.createGithubErrorCheck(summary, errors, severity);
   }
 
-  private static createSummaryLines(errors: UnityError[], severity: string): string[] {
+  private createSummaryLines(errors: UnityError[], severity: string): string[] {
     const summaryLines = ['## Unity Build Error Summary\n\n'];
 
     if (errors.length === 0) {
