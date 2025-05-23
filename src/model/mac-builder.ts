@@ -5,8 +5,7 @@ import { Severity, UnityErrorParser } from './error/unity-error-parser';
 
 class MacBuilder {
   public static async run(actionFolder: string, silent: boolean = false): Promise<number> {
-    // const projectPath = `${process.env.GITHUB_WORKSPACE}/${process.env.PROJECT_PATH}`;
-    const buildLogPath = `${process.env.GITHUB_WORKSPACE}/unity-build.log`;
+    const buildLogPath = `${actionFolder}/unity-build.log`;
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh | tee ${buildLogPath}`;
 
     const exitCode = await exec(runCommand, [], { silent, ignoreReturnCode: true });
