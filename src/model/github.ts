@@ -47,20 +47,20 @@ class GitHub {
     return CloudRunnerOptions.githubRepoName;
   }
 
-  public static async createGithubErrorCheck(summary: string, errors: UnityError[]) {
+  public static async createGithubErrorCheck(summary: string, errors: UnityError[], severity: string) {
     GitHub.startedDate = new Date().toISOString();
 
     const data = {
       owner: GitHub.owner,
       repo: GitHub.repo,
-      name: 'Unity Build Validation',
+      name: `Unity Build ${severity} Validation`,
       // eslint-disable-next-line camelcase
       head_sha: GitHub.sha,
       status: 'completed',
       conclusion: errors.length > 0 ? 'failure' : 'success',
       output: {
-        title: errors.length > 0 ? 'Unity Build Errors Detected' : 'Unity Build Successful',
-        summary: `Found ${errors.length} errors during the build.`,
+        title: errors.length > 0 ? `Unity Build ${severity}s Detected` : `Unity Build Succeeded with no ${severity}s`,
+        summary: `Found ${errors.length} ${severity.toLowerCase()}s during the build.`,
         text: summary,
       },
     };

@@ -13,8 +13,12 @@ class MacBuilder {
 
     if (Input.doErrorReporting && existsSync(buildLogPath)) {
       const logContent = readFileSync(buildLogPath, 'utf8');
+
       const errors = UnityErrorParser.parse(logContent, Severity.Error);
-      await UnityErrorParser.report(errors);
+      const warnings = UnityErrorParser.parse(logContent, Severity.Warning);
+
+      await UnityErrorParser.report(warnings, Severity.Warning);
+      await UnityErrorParser.report(errors, Severity.Error);
     }
 
     return exitCode;

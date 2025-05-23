@@ -52,9 +52,22 @@ export class UnityErrorParser {
       .map((x) => x as UnityError);
   }
 
-  public static async report(errors: UnityError[]) {
+  public static async report(errors: UnityError[], severity: string) {
     if (!Cli.options?.doErrorReporting) return;
-    if (errors.length === 0) return;
+
+    const summary = this.createSummaryLines(errors, severity).join('');
+    await core.summary.addRaw(summary).write();
+    await GitHub.createGithubErrorCheck(summary, errors, severity);
+  }
+
+  private static createSummaryLines(errors: UnityError[], severity: string): string[] {
+    const summaryLines = ['## Unity Build Error Summary\n\n'];
+
+    if (errors.length === 0) {
+      summaryLines.push(`No ${severity.toLowerCase()}s to report!`);
+
+      return summaryLines;
+    }
 
     const byType = new Map<string, UnityError[]>();
     for (const error of errors) {
@@ -64,7 +77,6 @@ export class UnityErrorParser {
       byType.get(error.type)!.push(error);
     }
 
-    const summaryLines = ['## Unity Build Error Summary\n\n'];
     for (const [type, typeErrors] of byType) {
       summaryLines.push(`### ${type} (${typeErrors.length}) occurrences ###`);
       for (const error of typeErrors) {
@@ -76,8 +88,6 @@ export class UnityErrorParser {
       }
     }
 
-    const summary = summaryLines.join('');
-    await core.summary.addRaw(summary).write();
-    await GitHub.createGithubErrorCheck(summary, errors);
+    return summaryLines;
   }
 }
