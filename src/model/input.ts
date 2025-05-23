@@ -211,6 +211,32 @@ class Input {
     return Input.getInput('chownFilesTo') ?? '';
   }
 
+  static get doErrorReporting() {
+    return Input.getInput('errorReporting') === 'true';
+  }
+
+  static get errorPatterns(): string[] {
+    const data = JSON.parse(Input.getInput('errorPatterns') || '[]');
+    if (!Array.isArray(data)) {
+      core.error(`errorPatterns is set incorrectly in actions.yml - it must be a JSON Array but is not`);
+
+      return [];
+    }
+
+    return data;
+  }
+
+  static get warningPatterns(): string[] {
+    const data = JSON.parse(Input.getInput('warningPatterns') || '[]');
+    if (!Array.isArray(data)) {
+      core.error(`warningPatterns is set incorrectly in actions.yml - it must be a JSON Array but is not`);
+
+      return [];
+    }
+
+    return data;
+  }
+
   static get allowDirtyBuild(): boolean {
     const input = Input.getInput('allowDirtyBuild') ?? false;
 
