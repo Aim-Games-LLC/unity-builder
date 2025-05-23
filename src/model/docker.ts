@@ -2,7 +2,6 @@ import * as core from '@actions/core';
 import { ExecOptions, exec } from '@actions/exec';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { Cli } from './cli/cli';
 import { Severity, UnityErrorParser } from './error/unity-error-parser';
 import ImageEnvironmentFactory from './image-environment-factory';
 import { DockerParameters, StringKeyValuePair } from './shared-types';
@@ -38,7 +37,7 @@ class Docker {
 
     const exitCode = await exec(runCommand, undefined, options);
 
-    if (Cli.options?.doErrorReporting && existsSync(buildLogPath)) {
+    if (UnityErrorParser.doErrorReporting && existsSync(buildLogPath)) {
       const logContent = readFileSync(buildLogPath, 'utf8');
 
       const errors = UnityErrorParser.parse(logContent, Severity.Error);
@@ -47,7 +46,7 @@ class Docker {
       await UnityErrorParser.report(warnings, Severity.Warning);
       await UnityErrorParser.report(errors, Severity.Error);
     } else {
-      if (Cli.options?.doErrorReporting) {
+      if (UnityErrorParser.doErrorReporting) {
         core.info('Error reporting has been disabled.');
       } else {
         core.error(`Log at ${buildLogPath} does not exist!`);

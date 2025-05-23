@@ -212,7 +212,9 @@ class Input {
   }
 
   static get doErrorReporting() {
-    return Input.getInput('errorReporting') === 'true';
+    const input = Input.getInput('errorReporting') ?? 'true';
+
+    return input === 'true';
   }
 
   static get errorPatterns(): string[] {
