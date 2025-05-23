@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import { ExecOptions, exec } from '@actions/exec';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -45,6 +46,12 @@ class Docker {
 
       await UnityErrorParser.report(warnings, Severity.Warning);
       await UnityErrorParser.report(errors, Severity.Error);
+    } else {
+      if (Cli.options?.doErrorReporting) {
+        core.info('Error reporting has been disabled.');
+      } else {
+        core.error(`Log at ${buildLogPath} does not exist!`);
+      }
     }
 
     return exitCode;

@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import { exec } from '@actions/exec';
 import { existsSync, readFileSync } from 'node:fs';
 import { Severity, UnityErrorParser } from './error/unity-error-parser';
@@ -19,6 +20,12 @@ class MacBuilder {
 
       await UnityErrorParser.report(warnings, Severity.Warning);
       await UnityErrorParser.report(errors, Severity.Error);
+    } else {
+      if (Input.doErrorReporting) {
+        core.info('Error reporting has been disabled.');
+      } else {
+        core.error(`Log at ${buildLogPath} does not exist!`);
+      }
     }
 
     return exitCode;
