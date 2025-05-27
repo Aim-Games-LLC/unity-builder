@@ -56,6 +56,8 @@ class GitHub {
       name: `Unity Build ${severity} Validation`,
       // eslint-disable-next-line camelcase
       head_sha: headSha,
+      // eslint-disable-next-line camelcase
+      started_at: GitHub.startedDate,
       status: 'completed',
       conclusion: errors.length > 0 ? 'failure' : 'success',
       output: {
@@ -63,7 +65,14 @@ class GitHub {
         summary: `Found ${errors.length} ${severity.toLowerCase()}s during the build.`,
         text: summary || '',
       },
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
     };
+
+    core.info(`process.env.GITHUB_TOKEN = ${process.env.GITHUB_TOKEN}`);
+    core.info(`Creating a GitHub ${severity} Check with this data:`);
+    core.info(JSON.stringify(data, undefined, 2));
 
     const result = await GitHub.createGitHubCheckRequest(data);
 

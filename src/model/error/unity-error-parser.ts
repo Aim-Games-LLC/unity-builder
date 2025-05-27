@@ -71,7 +71,8 @@ export class UnityErrorParser {
       ],
       [Severity.Warning]: [
         ...parameters.warningPatterns,
-        { pattern: /warning CS\d+: (.*)/, category: 'Compilation Warning' },
+
+        // { pattern: /warning CS\d+: (.*)/, category: 'Compilation Warning' },
       ],
     };
   }
