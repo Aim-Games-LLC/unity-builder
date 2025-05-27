@@ -24,15 +24,14 @@ class MacBuilder {
 
     if (existsSync(buildLogPath)) {
       core.info(`Build log at ${buildLogPath} still exists after build!`);
-
-      const contents = readFileSync(buildLogPath, 'utf8');
-      core.info(contents);
     } else {
       core.warning(`!!!Build log at ${buildLogPath} no longer exists after build!!!`);
     }
 
     if (errorParser.doErrorReporting && existsSync(buildLogPath)) {
-      const logContent = readFileSync(buildLogPath, 'utf8');
+      const logContent = readFileSync(buildLogPath).toString();
+
+      core.info(`Successfully read content from ${buildLogPath}: log length = ${logContent.length}`);
 
       const errors = errorParser.parse(logContent, Severity.Error);
       const warnings = errorParser.parse(logContent, Severity.Warning);
