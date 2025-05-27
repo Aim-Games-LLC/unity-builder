@@ -42,24 +42,30 @@ export class UnityErrorParser {
 
   public parse(logContent: string, severity: string): UnityError[] {
     const lines = logContent.split('\n');
+    core.info('####### Begin Parse #######');
+    core.info(`parse(${severity}): logContent has ${lines.length} lines`);
 
-    return lines
-      .map((line, index) => {
-        for (const { pattern, category } of this.patterns[severity]) {
-          const match = line.match(pattern);
-          if (!match) return;
+    const errors: UnityError[] = [];
 
-          return {
-            type: category,
-            message: match[1],
-            lineNumber: index + 1,
-            context: lines.slice(Math.max(0, index - 2), index + 2),
-            severity,
-          };
-        }
-      })
-      .filter((x) => x)
-      .map((x) => x as UnityError);
+    for (const [index, line] of lines.entries()) {
+      for (const { pattern, category } of this.patterns[severity]) {
+        const match = line.match(pattern);
+        if (!match) continue;
+
+        errors.push({
+          type: category,
+          message: match[1],
+          lineNumber: index + 1,
+          context: lines.slice(Math.max(0, index - 2), index + 2),
+          severity,
+        });
+      }
+    }
+
+    core.info(`Found ${errors.length} ${severity.toLowerCase()}s`);
+    core.info('######## End Parse ########');
+
+    return errors;
   }
 
   public async report(errors: UnityError[], severity: string) {
