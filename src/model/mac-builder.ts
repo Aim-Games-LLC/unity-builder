@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
-import { existsSync, readFileSync, renameSync, rmSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { v4 as UUIDv4 } from 'uuid';
 import BuildParameters from './build-parameters';
 import { Severity, UnityErrorParser } from './error/unity-error-parser';
 
@@ -11,16 +11,14 @@ class MacBuilder {
     actionFolder: string,
     silent: boolean = false,
   ): Promise<number> {
-    const buildLogPath = `${homedir()}/.unity-build.log`; // TODO: some sort of hash / timestamp / etc.
+    // The build log path is created from a random UUID to avoid collisions for parallel builds
+    //  The entrypoint accepts a single flag which we're using to pass in the buildLogPath
+    const buildLogPath = this.makeBuidLogPath();
+    core.info(`Using buildLogPath=${buildLogPath}`);
     const errorParser = new UnityErrorParser(buildParameters);
 
-    if (existsSync(buildLogPath)) {
-      core.info(`Build log at ${buildLogPath} already exists -- moving it to ${buildLogPath}.old`);
-      renameSync(buildLogPath, `${buildLogPath}.old`); // renameSync will replace the existing file
-    }
-
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh`;
-    const exitCode = await exec(runCommand, [], { silent, ignoreReturnCode: true });
+    const exitCode = await exec(runCommand, [buildLogPath], { silent, ignoreReturnCode: true });
 
     if (existsSync(buildLogPath)) {
       core.info(`Build log at ${buildLogPath} still exists after build!`);
@@ -52,6 +50,13 @@ class MacBuilder {
     }
 
     return exitCode;
+  }
+
+  private static makeBuidLogPath() {
+    const uid = UUIDv4().replace(/-/g, '');
+    const projectPath = `${process.env.GITHUB_WORKSPACE}/${process.env.PROJECT_PATH}`;
+
+    return `${projectPath}/unity-build.${uid}.log`;
   }
 }
 

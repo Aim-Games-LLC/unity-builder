@@ -25,7 +25,7 @@ fi
 # Run Build
 #
 
-source $ACTION_FOLDER/platforms/mac/steps/build.sh
+source $ACTION_FOLDER/platforms/mac/steps/build.sh $@
 
 #
 # License Cleanup
