@@ -50,6 +50,15 @@ class GitHub {
   public static async createGithubErrorCheck(summary: string, errors: UnityError[], severity: string) {
     GitHub.startedDate = new Date().toISOString();
 
+    core.info(`##########################`);
+    core.info(`# createGithubErrorCheck #`);
+    core.info(`##########################`);
+    core.info('');
+    core.info(`summary: ${summary}`);
+    core.info(`severity: ${severity}`);
+    core.info(`errors: (${errors.length})`);
+    core.info(`${errors.map((x) => x.message).join('\n')}`);
+
     const data = {
       owner: GitHub.owner,
       repo: GitHub.repo,

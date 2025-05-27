@@ -66,8 +66,11 @@ export class UnityErrorParser {
     if (!this.doErrorReporting) return;
     if (errors.length === 0) return;
 
+    core.info(`Hit report(errors: ${errors.length}, severity: ${severity})`);
+
     const summary = this.createSummaryLines(errors, severity).join('');
-    await core.summary.addRaw(summary).write();
+    await core.summary.addRaw(summary || '').write();
+    core.info('Added raw summary in the report()');
     await GitHub.createGithubErrorCheck(summary, errors, severity);
   }
 
