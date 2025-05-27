@@ -32,7 +32,43 @@ export class UnityErrorParser {
   constructor(parameters: BuildParameters) {
     this.doErrorReporting = parameters.errorReporting;
     this.patterns = {
-      [Severity.Error]: [...parameters.errorPatterns, { pattern: /error CS\d+: (.*)/, category: 'Compilation Error' }],
+      [Severity.Error]: [
+        ...parameters.errorPatterns,
+        {
+          pattern: /error CS\d+: (.*)/,
+          category: 'C# Compilation Error',
+        },
+        {
+          pattern: /error: cannot find symbol/,
+          category: 'Java Compilation Error',
+        },
+        {
+          pattern: /Segmentation fault: \(\d+\)/,
+          category: 'C++ Error',
+        },
+        {
+          pattern: /] error: \/Users|error: cannot find symbol|general error \(\d+\)|Exception: /,
+          category: 'General Error',
+        },
+        {
+          pattern:
+            /Failed to process scene|Problem detected while opening|Prefab instance problem:|FileNotFoundException/,
+          category: 'Unity Error',
+        },
+        {
+          pattern:
+            /> Execution failed|Execution failed for task|Error: Error uploading|error: Provisioning profile|Error: Failed to create release upload|Error: Could not find group Everyone|Error: Asset validation failed/,
+          category: 'Execution Failure',
+        },
+        {
+          pattern: /Upload failed:/,
+          category: 'Upload Failure',
+        },
+        {
+          pattern: /The caller does not have permission|No GoogleService-Info.plist/,
+          category: 'API Error',
+        },
+      ],
       [Severity.Warning]: [
         ...parameters.warningPatterns,
         { pattern: /warning CS\d+: (.*)/, category: 'Compilation Warning' },
@@ -42,7 +78,6 @@ export class UnityErrorParser {
 
   public parse(logContent: string, severity: string): UnityError[] {
     const lines = logContent.split('\n');
-    core.info('####### Begin Parse #######');
     core.info(`parse(${severity}): logContent has ${lines.length} lines`);
 
     const errors: UnityError[] = [];
