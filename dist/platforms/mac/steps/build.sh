@@ -170,8 +170,16 @@ LOG=$UNITY_PROJECT_PATH/BuildLogs/out.log
   -androidSymbolType "$ANDROID_SYMBOL_TYPE" \
   -logFile "$LOG" \
   $CUSTOM_PARAMETERS \
-& tail -F "$LOG" \
-& wait $! # Wait for the Unity build to finish
+  & # Background this task. We'll grab the PID and wait on it
+unity_pid=$!
+
+# Run tail in the background too -- we'll kill this pid when the unity build is done
+#  This will keep the actions up to date with the latest log but not stick around once the
+#  build is done.
+tail -F "$LOG" &
+tail_pid=$!
+
+wait $unity_pid && kill -9 $tail_pid
 
 # Catch exit code
 BUILD_EXIT_CODE=$?
