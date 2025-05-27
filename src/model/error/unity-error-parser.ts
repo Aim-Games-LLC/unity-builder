@@ -64,6 +64,7 @@ export class UnityErrorParser {
 
   public async report(errors: UnityError[], severity: string) {
     if (!this.doErrorReporting) return;
+    if (errors.length === 0) return;
 
     const summary = this.createSummaryLines(errors, severity).join('');
     await core.summary.addRaw(summary).write();
@@ -71,7 +72,7 @@ export class UnityErrorParser {
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {
-    const summaryLines = ['## Unity Build Error Summary\n\n'];
+    const summaryLines = [`## Unity Build ${severity} Summary\n\n`];
 
     if (errors.length === 0) {
       summaryLines.push(`No ${severity.toLowerCase()}s to report!`);

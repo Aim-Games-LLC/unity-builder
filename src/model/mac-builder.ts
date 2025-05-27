@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
 import { existsSync, readFileSync, renameSync, rmSync } from 'node:fs';
-
+import { homedir } from 'node:os';
 import BuildParameters from './build-parameters';
 import { Severity, UnityErrorParser } from './error/unity-error-parser';
 
@@ -11,7 +11,7 @@ class MacBuilder {
     actionFolder: string,
     silent: boolean = false,
   ): Promise<number> {
-    const buildLogPath = `${process.env.GITHUB_WORKSPACE}/${process.env.PROJECT_PATH}/BuildLogs/out.log`;
+    const buildLogPath = `${homedir()}/.unity-build.log`;
     const errorParser = new UnityErrorParser(buildParameters);
 
     if (existsSync(buildLogPath)) {
@@ -19,7 +19,7 @@ class MacBuilder {
       renameSync(buildLogPath, `${buildLogPath}.old`); // renameSync will replace the existing file
     }
 
-    const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh | tee ${buildLogPath}`;
+    const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh 2>&1 | tee ${buildLogPath}`;
     const exitCode = await exec(runCommand, [], { silent, ignoreReturnCode: true });
 
     if (existsSync(buildLogPath)) {

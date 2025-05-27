@@ -142,10 +142,12 @@ echo "#    Building project     #"
 echo "###########################"
 echo ""
 
+
+LOG=~/.unity-build.log
+# Remove the old log if it exists
+rm -f $LOG ||:
+
 # Reference: https://docs.unity3d.com/2019.3/Documentation/Manual/CommandLineArguments.html
-
-LOG=$UNITY_PROJECT_PATH/BuildLogs/out.log
-
 /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
   $( [ "${MANUAL_EXIT}" == "true" ] || echo "-quit" ) \
   -batchmode \

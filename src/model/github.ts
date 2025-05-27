@@ -61,7 +61,7 @@ class GitHub {
       output: {
         title: errors.length > 0 ? `Unity Build ${severity}s Detected` : `Unity Build Succeeded with no ${severity}s`,
         summary: `Found ${errors.length} ${severity.toLowerCase()}s during the build.`,
-        text: summary,
+        text: summary || '',
       },
     };
 
