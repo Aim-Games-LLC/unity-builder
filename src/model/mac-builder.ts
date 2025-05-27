@@ -11,7 +11,7 @@ class MacBuilder {
     actionFolder: string,
     silent: boolean = false,
   ): Promise<number> {
-    const buildLogPath = `${homedir()}/.unity-build.log`;
+    const buildLogPath = `${homedir()}/.unity-build.log`; // TODO: some sort of hash / timestamp / etc.
     const errorParser = new UnityErrorParser(buildParameters);
 
     if (existsSync(buildLogPath)) {
@@ -34,10 +34,10 @@ class MacBuilder {
       core.info(`Successfully read content from ${buildLogPath}: log length = ${logContent.length}`);
 
       const errors = errorParser.parse(logContent, Severity.Error);
-      const warnings = errorParser.parse(logContent, Severity.Warning);
-
-      await errorParser.report(warnings, Severity.Warning, buildParameters.gitSha);
       await errorParser.report(errors, Severity.Error, buildParameters.gitSha);
+
+      const warnings = errorParser.parse(logContent, Severity.Warning);
+      await errorParser.report(warnings, Severity.Warning, buildParameters.gitSha);
     } else {
       if (!errorParser.doErrorReporting) {
         core.info('Error reporting has been disabled.');

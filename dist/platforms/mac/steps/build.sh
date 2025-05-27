@@ -142,7 +142,8 @@ echo "#    Building project     #"
 echo "###########################"
 echo ""
 
-
+# TODO: won't be able to do this -- builds run in parallel. We'll need to pass in a timestamp
+# I can also leave files behind in the folder. Move to parameterized method.
 LOG=~/.unity-build.log
 # Remove the old log if it exists
 rm -f $LOG ||:
