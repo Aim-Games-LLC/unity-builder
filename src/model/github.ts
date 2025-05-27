@@ -47,7 +47,7 @@ class GitHub {
     return CloudRunnerOptions.githubRepoName;
   }
 
-  public static async createGithubErrorCheck(summary: string, errors: UnityError[], severity: string) {
+  public static async createGithubErrorCheck(summary: string, errors: UnityError[], severity: string, headSha: string) {
     GitHub.startedDate = new Date().toISOString();
 
     const data = {
@@ -55,7 +55,7 @@ class GitHub {
       repo: GitHub.repo,
       name: `Unity Build ${severity} Validation`,
       // eslint-disable-next-line camelcase
-      head_sha: GitHub.sha,
+      head_sha: headSha,
       status: 'completed',
       conclusion: errors.length > 0 ? 'failure' : 'success',
       output: {

@@ -36,8 +36,8 @@ class MacBuilder {
       const errors = errorParser.parse(logContent, Severity.Error);
       const warnings = errorParser.parse(logContent, Severity.Warning);
 
-      await errorParser.report(warnings, Severity.Warning);
-      await errorParser.report(errors, Severity.Error);
+      await errorParser.report(warnings, Severity.Warning, buildParameters.gitSha);
+      await errorParser.report(errors, Severity.Error, buildParameters.gitSha);
     } else {
       if (!errorParser.doErrorReporting) {
         core.info('Error reporting has been disabled.');

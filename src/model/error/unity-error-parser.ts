@@ -68,7 +68,7 @@ export class UnityErrorParser {
     return errors;
   }
 
-  public async report(errors: UnityError[], severity: string) {
+  public async report(errors: UnityError[], severity: string, sha: string) {
     if (!this.doErrorReporting) return;
     if (errors.length === 0) return;
 
@@ -77,7 +77,12 @@ export class UnityErrorParser {
     const summary = this.createSummaryLines(errors, severity).join('');
     await core.summary.addRaw(summary || '').write();
     core.info('Added raw summary in the report()');
-    await GitHub.createGithubErrorCheck(summary, errors, severity);
+    await GitHub.createGithubErrorCheck(
+      summary,
+      errors,
+      severity,
+      sha /* TODO: Might need to send more from the build params */,
+    );
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {
