@@ -11,7 +11,7 @@ class MacBuilder {
     actionFolder: string,
     silent: boolean = false,
   ): Promise<number> {
-    const buildLogPath = `${process.env.GITHUB_WORKSPACE}/BuildLogs/unity.log`; // `${homedir()}/unity-build.log`;
+    const buildLogPath = `${process.env.UNITY_PROJECT_PATH}/BuildLogs/unity.log`; // `${homedir()}/unity-build.log`;
     const errorParser = new UnityErrorParser(buildParameters);
 
     if (existsSync(buildLogPath)) {

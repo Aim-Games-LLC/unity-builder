@@ -144,7 +144,7 @@ echo ""
 
 # Reference: https://docs.unity3d.com/2019.3/Documentation/Manual/CommandLineArguments.html
 
-LOG=$GITHUB_WORKSPACE/BuildLogs/out.log
+LOG=$UNITY_PROJECT_PATH/BuildLogs/out.log
 
 /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
   $( [ "${MANUAL_EXIT}" == "true" ] || echo "-quit" ) \
@@ -169,8 +169,8 @@ LOG=$GITHUB_WORKSPACE/BuildLogs/out.log
   -androidExportType "$ANDROID_EXPORT_TYPE" \
   -androidSymbolType "$ANDROID_SYMBOL_TYPE" \
   -logFile "$LOG" \
-  $CUSTOM_PARAMETERS
-& tail -F "$LOG" 
+  $CUSTOM_PARAMETERS \
+& tail -F "$LOG" \
 & wait $! # Wait for the Unity build to finish
 
 # Catch exit code
