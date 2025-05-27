@@ -1,5 +1,5 @@
 // Derived from https://github.com/game-ci/unity-builder/issues/677
-import core from '@actions/core';
+import * as core from '@actions/core';
 import GitHub from '../github';
 import BuildParameters from '../build-parameters';
 
