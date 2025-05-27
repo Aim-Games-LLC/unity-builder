@@ -19,7 +19,7 @@ class MacBuilder {
       renameSync(buildLogPath, `${buildLogPath}.old`); // renameSync will replace the existing file
     }
 
-    const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh 2>&1 | tee ${buildLogPath}`;
+    const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh | tee ${buildLogPath}`;
     const exitCode = await exec(runCommand, [], { silent, ignoreReturnCode: true });
 
     if (existsSync(buildLogPath)) {

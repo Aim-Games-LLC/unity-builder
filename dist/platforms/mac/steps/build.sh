@@ -144,8 +144,9 @@ echo ""
 
 # Reference: https://docs.unity3d.com/2019.3/Documentation/Manual/CommandLineArguments.html
 
+LOG=$GITHUB_WORKSPACE/BuildLogs/out.log
+
 /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity \
-  -logFile - \
   $( [ "${MANUAL_EXIT}" == "true" ] || echo "-quit" ) \
   -batchmode \
   $( [ "${ENABLE_GPU}" == "true" ] || echo "-nographics" ) \
@@ -167,7 +168,10 @@ echo ""
   -androidTargetSdkVersion "$ANDROID_TARGET_SDK_VERSION" \
   -androidExportType "$ANDROID_EXPORT_TYPE" \
   -androidSymbolType "$ANDROID_SYMBOL_TYPE" \
+  -logFile "$LOG" \
   $CUSTOM_PARAMETERS
+& tail -F "$LOG" 
+& wait $! # Wait for the Unity build to finish
 
 # Catch exit code
 BUILD_EXIT_CODE=$?
