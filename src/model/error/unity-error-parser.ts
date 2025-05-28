@@ -4,8 +4,8 @@ import GitHub from '../github';
 import BuildParameters from '../build-parameters';
 
 export const Severity = {
-  Error: 'error',
-  Warning: 'warning',
+  Error: 'Error',
+  Warning: 'Warning',
 };
 
 export interface UnityError {
@@ -101,14 +101,13 @@ export class UnityErrorParser {
     if (!this.doErrorReporting) return;
     if (errors.length === 0) return;
 
-    core.info(`Hit report(errors: ${errors.length}, severity: ${severity})`);
-
     const summary = this.createSummaryLines(errors, severity).join('');
-    if (severity === Severity.Warning) {
+
+    /* Only report errors to the summary, not warnings */
+    if (severity === Severity.Error) {
       await core.summary.addRaw(summary || '').write();
     }
 
-    core.info('Added raw summary in the report()');
     await GitHub.createGithubErrorCheck(summary, errors, severity, sha);
   }
 
