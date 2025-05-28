@@ -74,6 +74,8 @@ export class UnityErrorParser {
   }
 
   public parse(logContent: string, severity: string): UnityError[] {
+    if (!this.doErrorReporting) return [];
+
     const lines = logContent.split('\n');
     const errors: UnityError[] = [];
 
@@ -84,22 +86,22 @@ export class UnityErrorParser {
 
         errors.push({
           type: category,
-          message: match[1],
+          message: match[0],
           lineNumber: index + 1,
-          context: lines.slice(Math.max(0, index - 2), index + 2),
+          context: lines.slice(Math.max(0, index - 2), index + 3),
           severity,
         });
       }
     }
 
-    core.info(`Found ${errors.length} ${severity.toLowerCase()}s`);
+    const logMethod = errors.length > 0 ? core.error : core.info;
+    logMethod(`Found ${errors.length} ${severity.toLowerCase()}s`);
 
     return errors;
   }
 
   public async report(errors: UnityError[], severity: string, sha: string) {
     if (!this.doErrorReporting) return;
-    if (errors.length === 0) return;
 
     const summary = this.createSummaryLines(errors, severity).join('');
 
@@ -108,7 +110,7 @@ export class UnityErrorParser {
       await core.summary.addRaw(summary || '').write();
     }
 
-    await GitHub.createGithubErrorCheck(summary, errors, severity, sha);
+    await GitHub.createGitHubCheckWithErrors(summary, errors, severity, sha);
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {

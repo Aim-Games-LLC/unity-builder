@@ -47,10 +47,14 @@ class GitHub {
     return CloudRunnerOptions.githubRepoName;
   }
 
-  public static async createGithubErrorCheck(summary: string, errors: UnityError[], severity: string, headSha: string) {
+  public static async createGitHubCheckWithErrors(
+    summary: string,
+    errors: UnityError[],
+    severity: string,
+    headSha: string,
+  ) {
     GitHub.startedDate = new Date().toISOString();
-
-    const data = {
+    const result = await GitHub.createGitHubCheckRequest({
       owner: GitHub.owner,
       repo: GitHub.repo,
       name: `Unity Build ${severity} Validation`,
@@ -61,20 +65,18 @@ class GitHub {
       status: 'completed',
       conclusion: errors.length > 0 ? 'failure' : 'success',
       output: {
-        title: errors.length > 0 ? `Unity Build ${severity}s Detected` : `Unity Build Succeeded with no ${severity}s`,
+        // TODO: If we wanted to add in annotations (type: Object[]), we absolutely could. Each object would require:
+        //  - path (string): The path of the file to add an annotation to. For example, assets/css/main.css.
+        //  - start_line (int): The start line of the annotation. Line numbers start at 1.
+        //  - end_line (int): The end line of the annotation.
+        //  - annotation_level (string): The level of the annotation. Can be one of: 'notice', 'warning', 'failure'
+        //  - message (string): A short description of the feedback for these lines of code. The maximum size is 64 KB.
+        title: errors.length > 0 ? `Unity Build ${severity}s Detected` : 'Unity Build Succeeded',
         summary: `Found ${errors.length} ${severity.toLowerCase()}s during the build.`,
         text: summary || '',
+        annotations: [],
       },
-      headers: {
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-    };
-
-    core.info(`process.env.GITHUB_TOKEN = ${process.env.GITHUB_TOKEN}`);
-    core.info(`Creating a GitHub ${severity} Check with this data:`);
-    core.info(JSON.stringify(data, undefined, 2));
-
-    const result = await GitHub.createGitHubCheckRequest(data);
+    });
 
     return result.data.id.toString();
   }
