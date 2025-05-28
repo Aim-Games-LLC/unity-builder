@@ -69,18 +69,12 @@ export class UnityErrorParser {
           category: 'API Error',
         },
       ],
-      [Severity.Warning]: [
-        ...parameters.warningPatterns,
-
-        // { pattern: /warning CS\d+: (.*)/, category: 'Compilation Warning' },
-      ],
+      [Severity.Warning]: [...parameters.warningPatterns],
     };
   }
 
   public parse(logContent: string, severity: string): UnityError[] {
     const lines = logContent.split('\n');
-    core.info(`parse(${severity}): logContent has ${lines.length} lines`);
-
     const errors: UnityError[] = [];
 
     for (const [index, line] of lines.entries()) {
@@ -99,7 +93,6 @@ export class UnityErrorParser {
     }
 
     core.info(`Found ${errors.length} ${severity.toLowerCase()}s`);
-    core.info('######## End Parse ########');
 
     return errors;
   }
@@ -116,12 +109,7 @@ export class UnityErrorParser {
     }
 
     core.info('Added raw summary in the report()');
-    await GitHub.createGithubErrorCheck(
-      summary,
-      errors,
-      severity,
-      sha /* TODO: Might need to send more from the build params */,
-    );
+    await GitHub.createGithubErrorCheck(summary, errors, severity, sha);
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {

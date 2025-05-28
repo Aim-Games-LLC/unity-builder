@@ -11,6 +11,9 @@ class MacBuilder {
     actionFolder: string,
     silent: boolean = false,
   ): Promise<number> {
+    // TODO: REMOVE THIS
+    const forceErrors = true;
+
     // The build log path is created from a random UUID to avoid collisions for parallel builds
     //  The entrypoint accepts a single flag which we're using to pass in the buildLogPath
     const buildLogPath = this.makeBuidLogPath();
@@ -20,18 +23,21 @@ class MacBuilder {
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh`;
     const exitCode = await exec(runCommand, [buildLogPath], { silent, ignoreReturnCode: true });
 
-    if (existsSync(buildLogPath)) {
-      core.info(`Build log at ${buildLogPath} still exists after build!`);
-    } else {
-      core.warning(`!!!Build log at ${buildLogPath} no longer exists after build!!!`);
-    }
-
     if (errorParser.doErrorReporting && existsSync(buildLogPath)) {
       const logContent = readFileSync(buildLogPath).toString();
 
       core.info(`Successfully read content from ${buildLogPath}: log length = ${logContent.length}`);
 
       const errors = errorParser.parse(logContent, Severity.Error);
+      if (forceErrors) {
+        errors.push({
+          type: 'TEST',
+          message: 'This is a forced error -- do not report',
+          lineNumber: 0,
+          context: [],
+          severity: Severity.Error,
+        });
+      }
       await errorParser.report(errors, Severity.Error, buildParameters.gitSha);
 
       const warnings = errorParser.parse(logContent, Severity.Warning);
@@ -44,7 +50,7 @@ class MacBuilder {
       }
     }
 
-    /* cleanup the logfile we tee'd */
+    /* cleanup the logfile we used for parsing */
     if (existsSync(buildLogPath)) {
       rmSync(buildLogPath);
     }

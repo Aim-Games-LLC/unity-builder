@@ -178,7 +178,8 @@ unity_pid=$!
 tail -F "$LOG" &
 tail_pid=$!
 
-wait $unity_pid; kill -9 $tail_pid
+wait $unity_pid
+kill -9 $tail_pid > /dev/null 2>&1 # Avoid having this command show up in GitHub build output
 
 # Catch exit code
 BUILD_EXIT_CODE=$?
