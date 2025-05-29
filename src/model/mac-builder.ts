@@ -20,22 +20,23 @@ class MacBuilder {
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh`;
     const exitCode = await exec(runCommand, [buildLogPath], { silent, ignoreReturnCode: true });
 
-    if (errorParser.doErrorReporting && existsSync(buildLogPath)) {
-      const logContent = readFileSync(buildLogPath).toString();
+    if (!existsSync(buildLogPath)) {
+      core.error(`Log at ${buildLogPath} does not exist!`);
 
-      core.info(`Successfully read content from ${buildLogPath}: log length = {logContent.length}`);
+      return exitCode;
+    }
 
+    const logContent = readFileSync(buildLogPath).toString();
+    core.info(`Successfully read content from ${buildLogPath}: log length = {logContent.length}`);
+
+    if (errorParser.reportErrors) {
       const errors = errorParser.parse(logContent, Severity.Error);
       await errorParser.report(errors, Severity.Error, buildParameters.gitSha);
+    }
 
+    if (errorParser.reportWarnings) {
       const warnings = errorParser.parse(logContent, Severity.Warning);
       await errorParser.report(warnings, Severity.Warning, buildParameters.gitSha);
-    } else {
-      if (!errorParser.doErrorReporting) {
-        core.info('Error reporting has been disabled.');
-      } else {
-        core.error(`Log at ${buildLogPath} does not exist!`);
-      }
     }
 
     /* cleanup the logfile we used for parsing */

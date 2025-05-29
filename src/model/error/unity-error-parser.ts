@@ -26,11 +26,17 @@ interface PatternSet {
 }
 
 export class UnityErrorParser {
-  public readonly doErrorReporting: boolean;
-  private patterns: PatternSet;
+  public readonly reportErrors: boolean;
+  public readonly reportWarnings: boolean;
+
+  private readonly areAnyReportsEnabled: boolean; // True if either Error or Warning reporting is enabled
+  private readonly patterns: PatternSet;
 
   constructor(parameters: BuildParameters) {
-    this.doErrorReporting = parameters.errorReporting;
+    this.reportErrors = parameters.reportErrors;
+    this.reportWarnings = parameters.reportWarnings;
+    this.areAnyReportsEnabled = this.reportErrors || this.reportWarnings;
+
     this.patterns = {
       [Severity.Error]: [
         ...parameters.errorPatterns,
@@ -69,12 +75,15 @@ export class UnityErrorParser {
           category: 'API Error',
         },
       ],
-      [Severity.Warning]: [...parameters.warningPatterns],
+      [Severity.Warning]: [
+        ...parameters.warningPatterns,
+        { pattern: /warning CS\d+: (.*)/, category: 'C# Compilation Warning' },
+      ],
     };
   }
 
   public parse(logContent: string, severity: string): UnityError[] {
-    if (!this.doErrorReporting) return [];
+    if (!this.areAnyReportsEnabled) return [];
 
     const lines = logContent.split('\n');
     const errors: UnityError[] = [];
@@ -101,7 +110,7 @@ export class UnityErrorParser {
   }
 
   public async report(errors: UnityError[], severity: string, sha: string) {
-    if (!this.doErrorReporting) return;
+    if (!this.areAnyReportsEnabled) return;
 
     const summary = this.createSummaryLines(errors, severity).join('');
 

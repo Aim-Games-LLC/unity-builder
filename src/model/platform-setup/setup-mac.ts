@@ -192,8 +192,9 @@ class SetupMac {
     process.env.MANUAL_EXIT = buildParameters.manualExit.toString();
     process.env.ENABLE_GPU = buildParameters.enableGpu.toString();
 
-    process.env.DO_ERROR_REPORTING = `${buildParameters.errorReporting}`;
+    process.env.REPORT_ERRORS = `${buildParameters.reportErrors}`;
     process.env.REPORTING_ERROR_PATTERNS = JSON.stringify(buildParameters.errorPatterns);
+    process.env.REPORT_WARNINGS = `${buildParameters.reportWarnings}`;
     process.env.REPORTING_WARNING_PATTERNS = JSON.stringify(buildParameters.warningPatterns);
   }
 }

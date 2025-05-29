@@ -211,8 +211,8 @@ class Input {
     return Input.getInput('chownFilesTo') ?? '';
   }
 
-  static get doErrorReporting() {
-    const input = Input.getInput('errorReporting') ?? 'true';
+  static get reportErrors() {
+    const input = Input.getInput('reportErrors') ?? 'true';
 
     return input === 'true';
   }
@@ -226,6 +226,12 @@ class Input {
     }
 
     return data;
+  }
+
+  static get reportWarnings() {
+    const input = Input.getInput('reportWarnings') ?? 'false';
+
+    return input === 'true';
   }
 
   static get warningPatterns(): string[] {

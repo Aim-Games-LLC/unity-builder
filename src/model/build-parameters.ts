@@ -24,8 +24,9 @@ class BuildParameters {
   public unityLicensingServer!: string;
   public skipActivation!: string;
   public runnerTempPath!: string;
-  public errorReporting!: boolean;
+  public reportErrors!: boolean;
   public errorPatterns!: any;
+  public reportWarnings!: boolean;
   public warningPatterns!: any;
   public targetPlatform!: string;
   public projectPath!: string;
@@ -154,8 +155,9 @@ class BuildParameters {
       unityLicensingServer: Input.unityLicensingServer,
       skipActivation: Input.skipActivation,
       runnerTempPath: Input.runnerTempPath,
-      errorReporting: Input.doErrorReporting,
+      reportErrors: Input.reportErrors,
       errorPatterns: Input.errorPatterns,
+      reportWarnings: Input.reportWarnings,
       warningPatterns: Input.warningPatterns,
       targetPlatform: Input.targetPlatform,
       projectPath: Input.projectPath,
