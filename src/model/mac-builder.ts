@@ -27,11 +27,12 @@ class MacBuilder {
     }
 
     const logContent = readFileSync(buildLogPath).toString();
-    core.info(`Successfully read content from ${buildLogPath}: log length = {logContent.length}`);
+    let parsedErrorCode = 0;
 
     if (errorParser.reportErrors) {
       const errors = errorParser.parse(logContent, Severity.Error);
       await errorParser.report(errors, Severity.Error, buildParameters.gitSha);
+      parsedErrorCode = Math.min(errors.length, 1);
     }
 
     if (errorParser.reportWarnings) {
@@ -44,7 +45,7 @@ class MacBuilder {
       rmSync(buildLogPath);
     }
 
-    return exitCode;
+    return exitCode || parsedErrorCode;
   }
 
   private static makeBuidLogPath() {
