@@ -52,7 +52,8 @@ class GitHub {
     errors: UnityError[],
     severity: string,
     headSha: string,
-  ) {
+    retries: number = 0,
+  ): Promise<string> {
     GitHub.startedDate = new Date().toISOString();
     const result = await GitHub.createGitHubCheckRequest({
       owner: GitHub.owner,
@@ -77,6 +78,19 @@ class GitHub {
         annotations: [],
       },
     });
+
+    if (result.status !== 201 /* === created according to GitHub API */) {
+      core.info(`Failed to create check - result.status = ${result.status}`);
+      if (retries < 5) {
+        core.info(`Trying again...`);
+
+        return await GitHub.createGitHubCheckWithErrors(summary, errors, severity, headSha, retries + 1);
+      } else {
+        core.error(`Failed to create check after ${retries - 1} tries. Failing this build - report to coder.`);
+
+        return '';
+      }
+    }
 
     return result.data.id.toString();
   }

@@ -13,9 +13,13 @@ class MacBuilder {
   ): Promise<number> {
     // The build log path is created from a random UUID to avoid collisions for parallel builds
     //  The entrypoint accepts a single flag which we're using to pass in the buildLogPath
-    const buildLogPath = this.makeBuidLogPath();
+    const buildLogPath = this.makeBuidLogPath(buildParameters.gitSha);
+
+    // If the build log path came back empty, we've already properly logged out errors and are going to have to abort
+    if (buildLogPath.length === 0) return 1;
+
     core.info(`Using buildLogPath=${buildLogPath}`);
-    const errorParser = new UnityErrorParser(buildParameters);
+    const logParser = new UnityErrorParser(buildParameters);
 
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh`;
     const exitCode = await exec(runCommand, [buildLogPath], { silent, ignoreReturnCode: true });
@@ -29,15 +33,17 @@ class MacBuilder {
     const logContent = readFileSync(buildLogPath).toString();
     let parsedErrorCode = 0;
 
-    if (errorParser.reportErrors) {
-      const errors = errorParser.parse(logContent, Severity.Error);
-      await errorParser.report(errors, Severity.Error, buildParameters.gitSha);
+    if (logParser.reportErrors) {
+      const errors = logParser.parse(logContent, Severity.Error);
+      const success = await logParser.report(errors, Severity.Error, buildParameters.gitSha);
+      if (!success) return 1; // Failed to create GitHub Check after several retries, time to bail
       parsedErrorCode = Math.min(errors.length, 1);
     }
 
-    if (errorParser.reportWarnings) {
-      const warnings = errorParser.parse(logContent, Severity.Warning);
-      await errorParser.report(warnings, Severity.Warning, buildParameters.gitSha);
+    if (logParser.reportWarnings) {
+      const warnings = logParser.parse(logContent, Severity.Warning);
+      const success = await logParser.report(warnings, Severity.Warning, buildParameters.gitSha);
+      if (!success) return 1; // Failed to create GitHub Check after several retries, time to bail
     }
 
     /* cleanup the logfile we used for parsing */
@@ -48,11 +54,24 @@ class MacBuilder {
     return exitCode || parsedErrorCode;
   }
 
-  private static makeBuidLogPath() {
-    const uid = UUIDv4().replace(/-/g, '');
-    const projectPath = `${process.env.GITHUB_WORKSPACE}/${process.env.PROJECT_PATH}`;
+  private static makeBuidLogPath(sha: string, retries: number = 0): string {
+    if (retries >= 5) {
+      core.error(`Failed to generate a valid, non-colliding build log path after ${retries - 1} attempts`);
 
-    return `${projectPath}/unity-build.${uid}.log`;
+      return '';
+    }
+
+    const projectPath = `${process.env.GITHUB_WORKSPACE}/${process.env.PROJECT_PATH}`;
+    const uid = UUIDv4().replace(/-/g, '');
+    const logPath = `${projectPath}/unity-build.${sha}.${uid}.log`;
+
+    if (existsSync(logPath)) {
+      core.info(`In an unlikely turn of events, ${logPath} already exists! Generating a new one`);
+
+      return this.makeBuidLogPath(sha, retries + 1);
+    }
+
+    return logPath;
   }
 }
 
