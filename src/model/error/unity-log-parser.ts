@@ -25,7 +25,7 @@ interface PatternSet {
   [key: string]: Pattern[];
 }
 
-export class UnityErrorParser {
+export class UnityLogParser {
   public readonly reportErrors: boolean;
   public readonly reportWarnings: boolean;
 

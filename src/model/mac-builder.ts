@@ -3,7 +3,7 @@ import { exec } from '@actions/exec';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { v4 as UUIDv4 } from 'uuid';
 import BuildParameters from './build-parameters';
-import { Severity, UnityErrorParser } from './error/unity-error-parser';
+import { Severity, UnityLogParser } from './error/unity-log-parser';
 
 class MacBuilder {
   public static async run(
@@ -19,12 +19,10 @@ class MacBuilder {
     if (buildLogPath.length === 0) return 1;
 
     core.info(`Using buildLogPath=${buildLogPath}`);
-    const logParser = new UnityErrorParser(buildParameters);
+    const logParser = new UnityLogParser(buildParameters);
 
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh`;
     const exitCode = await exec(runCommand, [buildLogPath], { silent, ignoreReturnCode: true });
-
-    core.info(`Build task finished with exitCode=${exitCode}`);
 
     if (!existsSync(buildLogPath)) {
       core.error(`Log at ${buildLogPath} does not exist!`);
@@ -33,11 +31,13 @@ class MacBuilder {
     }
 
     const logContent = readFileSync(buildLogPath).toString();
+    let parserErrorCode = 0;
 
     if (logParser.reportErrors) {
       const errors = logParser.parse(logContent, Severity.Error);
       const success = await logParser.report(errors, Severity.Error, buildParameters.gitSha);
-      if (!success || errors.length > 0) return 1; // If we have *any* errors, fail the whole build.
+      if (!success) return 1; // If we have *any* errors, fail the whole build.
+      parserErrorCode = Math.min(errors.length, 1);
     }
 
     if (logParser.reportWarnings) {
@@ -51,7 +51,7 @@ class MacBuilder {
       rmSync(buildLogPath);
     }
 
-    return exitCode;
+    return exitCode || parserErrorCode;
   }
 
   private static makeBuidLogPath(sha: string, retries: number = 0): string {
