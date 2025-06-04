@@ -31,13 +31,12 @@ class MacBuilder {
     }
 
     const logContent = readFileSync(buildLogPath).toString();
-    let parsedErrorCode = 0;
 
     if (logParser.reportErrors) {
       const errors = logParser.parse(logContent, Severity.Error);
       const success = await logParser.report(errors, Severity.Error, buildParameters.gitSha);
       if (!success) return 1; // Failed to create GitHub Check after several retries, time to bail
-      parsedErrorCode = Math.min(errors.length, 1);
+      if (errors.length > 0) return 1; // If we have *any* errors, fail the whole build.
     }
 
     if (logParser.reportWarnings) {
@@ -51,7 +50,7 @@ class MacBuilder {
       rmSync(buildLogPath);
     }
 
-    return exitCode || parsedErrorCode;
+    return exitCode;
   }
 
   private static makeBuidLogPath(sha: string, retries: number = 0): string {
