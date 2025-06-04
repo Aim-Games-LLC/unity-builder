@@ -35,15 +35,23 @@ class MacBuilder {
 
     if (logParser.reportErrors) {
       const errors = logParser.parse(logContent, Severity.Error);
-      const success = await logParser.report(errors, Severity.Error, buildParameters.gitSha);
-      if (!success) return 1; // If we have *any* errors, fail the whole build.
+
+      // TODO: Remove:
+      errors.push({
+        context: ['blah blah', 'blah blah blah', 'blah'],
+        lineNumber: 0,
+        message: 'This is a test, feel free to ignore',
+        severity: Severity.Error,
+        type: 'Test Error Please Ignore',
+      });
+
+      await logParser.report(errors, Severity.Error);
       parserErrorCode = Math.min(errors.length, 1);
     }
 
     if (logParser.reportWarnings) {
       const warnings = logParser.parse(logContent, Severity.Warning);
-      const success = await logParser.report(warnings, Severity.Warning, buildParameters.gitSha);
-      if (!success) return 1; // Failed to create GitHub Check after several retries, time to bail
+      await logParser.report(warnings, Severity.Warning);
     }
 
     /* cleanup the logfile we used for parsing */

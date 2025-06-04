@@ -3,7 +3,7 @@ import CloudRunner from './cloud-runner/cloud-runner';
 import CloudRunnerOptions from './cloud-runner/options/cloud-runner-options';
 import * as core from '@actions/core';
 import { Octokit } from '@octokit/core';
-import { UnityError } from './error/unity-log-parser';
+import { Severity, UnityError } from './error/unity-log-parser';
 
 class GitHub {
   private static readonly asyncChecksApiWorkflowName = `Async Checks API`;
@@ -47,6 +47,34 @@ class GitHub {
     return CloudRunnerOptions.githubRepoName;
   }
 
+  public static reportChecks(summary: string, errors: UnityError[], severity: string) {
+    if (errors.length === 0) return;
+
+    for (const error of errors) {
+      const data: Error = {
+        name: `Build ${severity}: ${error.type}`,
+        message: error.message,
+        stack: error.context.join('\n'),
+      };
+
+      const anno: core.AnnotationProperties = {
+        title: error.type,
+        startLine: error.lineNumber,
+        endLine: error.lineNumber,
+      };
+
+      if (severity === Severity.Error) {
+        core.error(data, anno);
+      } else if (severity === Severity.Warning) {
+        core.warning(data, anno);
+      }
+    }
+
+    if (severity === Severity.Error) {
+      core.setFailed(summary);
+    }
+  }
+
   public static async createGitHubCheckWithErrors(
     summary: string,
     errors: UnityError[],
@@ -55,6 +83,7 @@ class GitHub {
     retries: number = 0,
   ): Promise<string> {
     GitHub.startedDate = new Date().toISOString();
+
     const result = await GitHub.createGitHubCheckRequest({
       owner: GitHub.owner,
       repo: GitHub.repo,

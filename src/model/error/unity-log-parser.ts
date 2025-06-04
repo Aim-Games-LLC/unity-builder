@@ -109,8 +109,8 @@ export class UnityLogParser {
     return errors;
   }
 
-  public async report(errors: UnityError[], severity: string, sha: string): Promise<boolean> {
-    if (!this.areAnyReportsEnabled) return true;
+  public async report(errors: UnityError[], severity: string) {
+    if (!this.areAnyReportsEnabled) return;
 
     const summary = this.createSummaryLines(errors, severity).join('');
 
@@ -119,9 +119,7 @@ export class UnityLogParser {
       await core.summary.addRaw(summary || '').write();
     }
 
-    const checkId = await GitHub.createGitHubCheckWithErrors(summary, errors, severity, sha);
-
-    return checkId.length > 0;
+    GitHub.reportChecks(summary, errors, severity);
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {
