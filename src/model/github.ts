@@ -79,6 +79,8 @@ class GitHub {
       },
     });
 
+    core.info('Creating GitHub Check');
+
     if (result.status !== 201 /* === created according to GitHub API */) {
       core.info(`Failed to create check - result.status = ${result.status}`);
       if (retries < 5) {
@@ -91,6 +93,8 @@ class GitHub {
         return '';
       }
     }
+
+    core.info(`Created GitHub Check with id=${result.data.id}`);
 
     return result.data.id.toString();
   }
