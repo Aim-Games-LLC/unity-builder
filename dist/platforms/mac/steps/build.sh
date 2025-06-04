@@ -225,3 +225,5 @@ echo "###########################"
 echo ""
 
 ls -alh "$BUILD_PATH_FULL"
+
+exit $BUILD_EXIT_CODE

@@ -24,6 +24,8 @@ class MacBuilder {
     const runCommand = `bash ${actionFolder}/platforms/mac/entrypoint.sh`;
     const exitCode = await exec(runCommand, [buildLogPath], { silent, ignoreReturnCode: true });
 
+    core.info(`Build task finished with exitCode=${exitCode}`);
+
     if (!existsSync(buildLogPath)) {
       core.error(`Log at ${buildLogPath} does not exist!`);
 
