@@ -37,8 +37,7 @@ class MacBuilder {
     if (logParser.reportErrors) {
       const errors = logParser.parse(logContent, Severity.Error);
       const success = await logParser.report(errors, Severity.Error, buildParameters.gitSha);
-      if (!success) return 1; // Failed to create GitHub Check after several retries, time to bail
-      if (errors.length > 0) return 1; // If we have *any* errors, fail the whole build.
+      if (!success || errors.length > 0) return 1; // If we have *any* errors, fail the whole build.
     }
 
     if (logParser.reportWarnings) {

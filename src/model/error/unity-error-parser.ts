@@ -121,7 +121,7 @@ export class UnityErrorParser {
 
     const checkId = await GitHub.createGitHubCheckWithErrors(summary, errors, severity, sha);
 
-    return checkId.length === 0;
+    return checkId.length > 0;
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {
