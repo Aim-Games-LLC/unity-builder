@@ -119,7 +119,7 @@ export class UnityLogParser {
       await core.summary.addRaw(summary || '').write();
     }
 
-    GitHub.reportChecks(summary, errors, severity);
+    GitHub.reportChecks(errors, severity);
   }
 
   private createSummaryLines(errors: UnityError[], severity: string): string[] {

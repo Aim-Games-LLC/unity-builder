@@ -47,16 +47,10 @@ class GitHub {
     return CloudRunnerOptions.githubRepoName;
   }
 
-  public static reportChecks(summary: string, errors: UnityError[], severity: string) {
+  public static reportChecks(errors: UnityError[], severity: string) {
     if (errors.length === 0) return;
 
     for (const error of errors) {
-      const data: Error = {
-        name: `Build ${severity}: ${error.type}`,
-        message: error.message,
-        stack: error.context.join('\n'),
-      };
-
       const anno: core.AnnotationProperties = {
         title: error.type,
         startLine: error.lineNumber,
@@ -64,14 +58,14 @@ class GitHub {
       };
 
       if (severity === Severity.Error) {
-        core.error(data, anno);
+        core.error(error.message, anno);
       } else if (severity === Severity.Warning) {
-        core.warning(data, anno);
+        core.warning(error.message, anno);
       }
     }
 
     if (severity === Severity.Error) {
-      core.setFailed(summary);
+      core.setFailed('Unity Build Failed - See the Build Summary for Details');
     }
   }
 
