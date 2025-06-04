@@ -69,12 +69,14 @@ class GitHub {
     }
   }
 
+  // DEPRECATED:
+  //  This approach is not workflow specific and will push all
+  //  checks created to the first workflow for the given SHA :|
   public static async createGitHubCheckWithErrors(
     summary: string,
     errors: UnityError[],
     severity: string,
     headSha: string,
-    retries: number = 0,
   ): Promise<string> {
     GitHub.startedDate = new Date().toISOString();
 
@@ -101,23 +103,6 @@ class GitHub {
         annotations: [],
       },
     });
-
-    core.info('Creating GitHub Check');
-
-    if (result.status !== 201 /* === created according to GitHub API */) {
-      core.info(`Failed to create check - result.status = ${result.status}`);
-      if (retries < 5) {
-        core.info(`Trying again...`);
-
-        return await GitHub.createGitHubCheckWithErrors(summary, errors, severity, headSha, retries + 1);
-      } else {
-        core.error(`Failed to create check after ${retries - 1} tries. Failing this build - report to coder.`);
-
-        return '';
-      }
-    }
-
-    core.info(`Created GitHub Check with id=${result.data.id}`);
 
     return result.data.id.toString();
   }

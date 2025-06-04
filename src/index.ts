@@ -42,9 +42,7 @@ async function runMain() {
     await Output.setAndroidVersionCode(buildParameters.androidVersionCode);
     await Output.setEngineExitCode(exitCode);
 
-    if (exitCode !== 0) {
-      core.setFailed(`Build failed with exit code ${exitCode}`);
-    }
+    if (exitCode !== 0 && process.platform !== 'darwin') core.setFailed(`Build failed with exit code ${exitCode}`);
   } catch (error) {
     core.setFailed((error as Error).message);
   }

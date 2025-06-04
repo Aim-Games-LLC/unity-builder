@@ -35,16 +35,6 @@ class MacBuilder {
 
     if (logParser.reportErrors) {
       const errors = logParser.parse(logContent, Severity.Error);
-
-      // TODO: Remove:
-      errors.push({
-        context: ['blah blah', 'blah blah blah', 'blah'],
-        lineNumber: 0,
-        message: 'This is a test, feel free to ignore',
-        severity: Severity.Error,
-        type: 'Test Error Please Ignore',
-      });
-
       await logParser.report(errors, Severity.Error);
       parserErrorCode = Math.min(errors.length, 1);
     }

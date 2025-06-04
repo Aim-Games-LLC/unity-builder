@@ -140,9 +140,9 @@ export class UnityLogParser {
     }
 
     for (const [type, typeErrors] of byType) {
-      summaryLines.push(`### ${type} (${typeErrors.length}) occurrences ###`);
+      summaryLines.push(`### ${type} (${typeErrors.length}) occurrences\n`);
       for (const error of typeErrors) {
-        summaryLines.push(`- **Line ${error.lineNumber}**: ${error.message}\n`, '  ```\n');
+        summaryLines.push(`- **Line ${error.lineNumber}**: ${error.message}\n\n`, '  ```\n');
         for (const line of error.context) {
           summaryLines.push(`  ${line}\n`);
         }
