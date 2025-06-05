@@ -118,6 +118,8 @@ export class UnityLogParser {
     if (severity === Severity.Error) {
       await core.summary.addRaw(summary || '').write();
       core.setOutput('exitSummary', summary);
+    } else {
+      core.setOutput('exitSummary', '');
     }
 
     GitHub.reportChecks(errors, severity);
