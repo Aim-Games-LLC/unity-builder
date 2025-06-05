@@ -12,6 +12,10 @@ class Output {
   static async setEngineExitCode(exitCode: number) {
     core.setOutput('engineExitCode', exitCode);
   }
+
+  static async setExitSummary(summary: string) {
+    core.setOutput('exitSummary', summary);
+  }
 }
 
 export default Output;

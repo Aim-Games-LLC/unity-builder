@@ -117,6 +117,7 @@ export class UnityLogParser {
     /* Only report errors to the summary, not warnings */
     if (severity === Severity.Error) {
       await core.summary.addRaw(summary || '').write();
+      core.setOutput('exitSummary', summary);
     }
 
     GitHub.reportChecks(errors, severity);
