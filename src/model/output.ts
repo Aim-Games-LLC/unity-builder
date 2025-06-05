@@ -13,8 +13,8 @@ class Output {
     core.setOutput('engineExitCode', exitCode);
   }
 
-  static async setExitSummary(summary: string) {
-    core.setOutput('exitSummary', summary);
+  static async setslackSummary(summary: string) {
+    core.setOutput('slackSummary', summary);
   }
 }
 

@@ -117,9 +117,9 @@ export class UnityLogParser {
     /* Only report errors to the summary, not warnings */
     if (severity === Severity.Error) {
       await core.summary.addRaw(summary || '').write();
-      core.setOutput('exitSummary', summary);
+      core.setOutput('slackSummary', summary.replace(/#/g, '')); // Slack doesn't support headers / subheaders / etc.., so strip them out
     } else {
-      core.setOutput('exitSummary', '');
+      core.setOutput('slackSummary', '');
     }
 
     GitHub.reportChecks(errors, severity);
